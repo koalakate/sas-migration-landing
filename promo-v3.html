@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAS Migration Done Right | Alchemist by T1A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFBFC;
+  --bg-warm: #F5F2ED;
+  --bg-white: #FFFFFF;
+  --bg-soft: #F3F5F7;
+  --bg-dark: #0B1222;
+  --bg-dark-card: #111827;
+  --accent: #22C55F;
+  --accent-hover: #16a34a;
+  --accent-soft: rgba(34, 197, 95, 0.08);
+  --accent-border: rgba(34, 197, 95, 0.2);
+  --teal: #14B8A6;
+  --teal-soft: rgba(20, 184, 166, 0.08);
+  --red-400: #EF4444;
+  --red-soft: rgba(239, 68, 68, 0.06);
+  --red-border: rgba(239, 68, 68, 0.12);
+  --text: #1A1A1A;
+  --text-secondary: #5C5C5C;
+  --text-dim: #9CA3AF;
+  --text-on-dark: rgba(255, 255, 255, 0.92);
+  --text-on-dark-secondary: rgba(255, 255, 255, 0.6);
+  --border: #E5E2DC;
+  --border-hover: #D1CEC8;
+  --radius: 48px;
+  --radius-card: 20px;
+  --radius-sm: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.section { padding: 100px 0; position: relative; }
+
+/* ── REVEAL (only fade, no translateY for non-clickable) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(245, 242, 237, 0.85);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-bottom: 1px solid var(--border);
+  height: 64px;
+  display: flex; align-items: center;
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto; padding: 0 40px;
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo img { height: 24px; width: auto; display: block; }
+.nav-sep { width: 1px; height: 16px; background: var(--border); }
+.nav-product { font-size: 13px; font-weight: 500; color: var(--text-dim); }
+.nav-right {
+  display: flex; align-items: center; gap: 32px;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 28px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-btns {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-btn-outline {
+  padding: 9px 22px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-btn-outline:hover { border-color: var(--border-hover); background: rgba(0,0,0,0.03); }
+.nav-cta {
+  padding: 9px 22px;
+  background: var(--text);
+  color: var(--bg-white);
+  border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 600;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.nav-cta:hover { background: #333; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 32px;
+  border-radius: var(--radius);
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: none; font-family: inherit;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 20px rgba(34, 197, 95, 0.25);
+}
+.btn-dark {
+  background: var(--text);
+  color: #fff;
+}
+.btn-dark:hover {
+  background: #1E293B;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+.btn-outline:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-soft);
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-warm);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* Decorative glass shapes */
+.deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+.deco img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+.deco-hero-l {
+  width: 340px;
+  top: 10%; left: -2%;
+  animation: deco-float 16s ease-in-out infinite;
+}
+.deco-hero-r {
+  width: 340px;
+  top: 50%; right: -3%;
+  transform: translateY(-50%);
+  animation: deco-float 20s ease-in-out infinite;
+  animation-delay: -6s;
+}
+.deco-hero-sm {
+  width: 140px;
+  top: 28%; right: 10%;
+  animation: deco-float 12s ease-in-out infinite;
+  animation-delay: -3s;
+}
+.deco-compare-r {
+  width: 280px;
+  top: -8%; right: -6%;
+  animation: deco-float 18s ease-in-out infinite;
+  animation-delay: -4s;
+}
+.deco-results-l {
+  width: 220px;
+  bottom: 5%; left: -5%;
+  animation: deco-float 15s ease-in-out infinite;
+  animation-delay: -8s;
+}
+@keyframes deco-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(2deg); }
+  66% { transform: translateY(6px) rotate(-1deg); }
+}
+
+.hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 160px 32px 80px;
+  position: relative;
+  z-index: 2;
+}
+.hero-credential {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--teal);
+  margin-bottom: 32px;
+}
+.hero h1 {
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+  max-width: 620px;
+}
+.hero h1 .em { color: var(--accent); }
+.hero-sub {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+.hero-sub strong { color: var(--text); font-weight: 600; }
+.hero-actions {
+  display: flex; gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.hero-note {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ── HERO STATS STRIP ── */
+.hero-stats-strip {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--border);
+}
+.hero-stats-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.hero-stat-cell {
+  text-align: center;
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+}
+.hero-stat-cell:last-child { border-right: none; }
+.hero-stat-n {
+  font-size: 32px; font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.hero-stat-n .hl { color: var(--accent); }
+.hero-stat-l {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ── LABELS ── */
+.label {
+  display: inline-block;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── PAIN SECTION (light) ── */
+.pain {
+  background: var(--bg-white);
+  border-top: 1px solid var(--border);
+}
+.pain-header { margin-bottom: 56px; text-align: center; }
+.pain-header .label { color: var(--red-400); }
+.pain-header h2 {
+  font-size: 36px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.pain-card {
+  background: var(--bg-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 32px 28px;
+}
+.pain-card-icon {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+}
+.pain-card h3 {
+  font-size: 18px; font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+.pain-card p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ── WHY T1A ── */
+.why { background: var(--bg-warm); }
+.why .label { color: var(--teal); }
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.why-left h2 {
+  font-size: 36px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 18px;
+  letter-spacing: -0.5px;
+}
+.why-left p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.why-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal-soft);
+  border: 1px solid rgba(20, 184, 166, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 13px; font-weight: 600;
+  color: var(--teal);
+}
+.why-right {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.why-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 20px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.7);
+}
+.why-item-icon {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+}
+.why-item h4 {
+  font-size: 15px; font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.why-item p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ── PROCESS (comparison layout) ── */
+.process { background: var(--bg-warm); }
+.process-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.process-header h2 {
+  font-size: 36px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+.compare-col {
+  border-radius: var(--radius-card);
+  padding: 36px 32px;
+}
+.compare-old {
+  background: #E8E5DF;
+  border: 1px solid var(--border);
+}
+.compare-new {
+  background: var(--accent);
+  border: 2px solid var(--accent);
+}
+.compare-col h3 {
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 24px;
+  line-height: 1.3;
+}
+.compare-old h3 { color: var(--text); }
+.compare-new h3 { color: #fff; }
+.compare-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.compare-list li {
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: 15px; line-height: 1.5;
+}
+.compare-old .compare-list li { color: var(--text-secondary); }
+.compare-new .compare-list li { color: rgba(255,255,255,0.92); }
+.compare-icon {
+  flex-shrink: 0; width: 20px; height: 20px; margin-top: 2px;
+}
+.compare-old .compare-icon { color: #9CA3AF; }
+.compare-new .compare-icon { color: #fff; }
+
+/* ── TOOLS (tendem-style card grid) ── */
+.tools { background: var(--bg-white); }
+.tools-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.tools-header h2 {
+  font-size: 36px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.tool-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+  display: flex; flex-direction: column;
+}
+.tool-tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  width: fit-content;
+}
+.tag-assess { color: var(--teal); }
+.tag-migrate { color: var(--accent); }
+.tool-card h3 {
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.tool-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  flex: 1;
+}
+.tool-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.tool-link:hover { color: var(--accent-hover); }
+.tools-footer {
+  text-align: center;
+}
+.tools-footer p {
+  font-size: 15px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.tool-link {
+  display: inline-flex;
+  align-items: center; gap: 5px;
+  font-size: 14px; font-weight: 600;
+  color: var(--accent);
+  transition: gap 0.2s;
+  cursor: pointer;
+}
+.tool-link:hover { gap: 8px; }
+
+/* ── RESULTS (dark) ── */
+.results {
+  background: var(--bg-dark);
+  color: var(--text-on-dark-secondary);
+}
+.results-header { margin-bottom: 56px; }
+.results-header .label { color: var(--accent); }
+.results-header h2 {
+  font-size: 36px; font-weight: 800;
+  color: var(--text-on-dark);
+  line-height: 1.2;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.results-header p { font-size: 16px; }
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 56px;
+}
+.result-card {
+  border-radius: var(--radius-card);
+  padding: 32px 28px;
+  display: flex; flex-direction: column;
+}
+.rc-accent { background: linear-gradient(145deg, #22C55F, #16a34a); color: #fff; }
+.rc-teal { background: linear-gradient(145deg, #14B8A6, #0d9488); color: #fff; }
+.rc-gradient { background: linear-gradient(145deg, #22C55F, #14B8A6); color: #fff; }
+.result-chip {
+  display: inline-flex;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  width: fit-content;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.result-card h3 {
+  font-size: 20px; font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.result-card p {
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.9;
+}
+.result-metric {
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 12px; font-weight: 800;
+  opacity: 0.65;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── REFERENCES ── */
+.refs-header {
+  margin-bottom: 32px;
+  padding-top: 56px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.refs-header .label { color: var(--teal); }
+.refs-header h3 {
+  font-size: 22px; font-weight: 700;
+  color: var(--text-on-dark);
+  line-height: 1.3;
+}
+.refs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.ref-card {
+  display: flex; flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--bg-dark-card);
+  transition: border-color 0.2s, transform 0.25s;
+  cursor: pointer;
+}
+.ref-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-3px);
+}
+.ref-preview {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.ref-preview img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.ref-preview-blog {
+  background: linear-gradient(135deg, #1a2338 0%, rgba(100, 80, 160, 0.15) 100%);
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+}
+.ref-blog-tag {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.ref-blog-title-preview {
+  font-size: 12.5px; font-weight: 700;
+  color: var(--text-on-dark);
+  text-align: center;
+  padding: 0 24px; line-height: 1.5;
+}
+.ref-play-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.3);
+  transition: background 0.2s;
+}
+.ref-card:hover .ref-play-overlay { background: rgba(0,0,0,0.45); }
+.ref-play-btn {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.ref-play-btn svg { width: 14px; height: 14px; fill: var(--bg-dark); margin-left: 3px; }
+.ref-body {
+  padding: 18px 20px 20px;
+  flex: 1;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.ref-type {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ref-type-article { color: var(--accent); }
+.ref-type-video { color: var(--teal); }
+.ref-title {
+  font-size: 14px; font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-on-dark);
+}
+.ref-desc {
+  font-size: 13px;
+  color: var(--text-on-dark-secondary);
+  line-height: 1.6;
+}
+.ref-link-label {
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--accent);
+}
+
+/* ── CTA ── */
+.cta {
+  padding: 120px 0;
+  text-align: center;
+  background: var(--bg-white);
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+.cta h2 {
+  font-size: 40px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.cta h2 .em { color: var(--accent); }
+.cta p {
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 460px;
+  margin: 0 auto 14px;
+  line-height: 1.7;
+}
+.cta-note {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+.cta-actions {
+  display: flex; justify-content: center; gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── PARTNERS ── */
+.partners-bar {
+  border-top: 1px solid var(--border);
+  padding: 48px 0;
+  background: var(--bg-white);
+}
+.partners-inner {
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; flex-wrap: wrap;
+}
+.partners-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.partner-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 500;
+  color: var(--text-secondary);
+}
+.partner-logo svg { opacity: 0.6; }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  background: var(--bg-white);
+}
+.footer-inner {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.footer-left img { height: 21px; width: auto; display: block; }
+.footer-copy { font-size: 12px; color: var(--text-dim); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--text-secondary); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .why-grid { grid-template-columns: 1fr; gap: 48px; }
+  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+  .compare { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .refs-grid { grid-template-columns: repeat(2, 1fr); }
+  .pain-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-btn-outline { display: none; }
+  .section { padding: 72px 0; }
+  .hero { min-height: auto; }
+  .hero-content { padding: 130px 24px 60px; }
+  .hero h1 { font-size: 32px; letter-spacing: -0.5px; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .deco-hero-l { width: 180px; top: 3%; left: -8%; }
+  .deco-hero-r { width: 200px; }
+  .deco-hero-sm { display: none; }
+  .deco-compare-r { width: 160px; }
+  .deco-results-l { width: 140px; }
+  .hero-stats-inner { grid-template-columns: 1fr; }
+  .hero-stat-cell { border-right: none; border-bottom: 1px solid var(--border); padding: 20px; }
+  .hero-stat-cell:last-child { border-bottom: none; }
+  .results-grid { grid-template-columns: 1fr; }
+  .refs-grid { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .partners-inner { flex-direction: column; gap: 20px; }
+  .cta h2 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <a href="https://t1a.com" class="nav-logo"><img src="resources/logos/logo_green.svg" alt="Alchemist" height="24"></a>
+      <div class="nav-sep"></div>
+      <span class="nav-product">SAS Migration</span>
+    </div>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#why">Why T1A</a></li>
+        <li><a href="#process">How It Works</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#results">Results</a></li>
+      </ul>
+      <div class="nav-btns">
+        <a href="#tools" class="nav-btn-outline">Alchemist &#8250;</a>
+        <a href="#contact" class="nav-cta">Book Assessment &#8250;</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="deco deco-hero-l"><img src="resources/shapes/gradient glass (18).svg" alt="" loading="eager"></div>
+  <div class="deco deco-hero-r"><img src="resources/shapes/gradient glass (20).svg" alt="" loading="eager"></div>
+  <div class="deco deco-hero-sm"><img src="resources/shapes/gradient glass (24).svg" alt="" loading="eager"></div>
+
+  <div class="hero-content">
+    <div class="hero-credential reveal">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 11c0 4-3.134 6-7 6s-7-2-7-6V5l7-3 7 3v6z"/><path d="M7 10l2.5 2.5L14 8"/></svg>
+      Former SAS Platinum Partner &mdash; 15 years SAS partnership
+    </div>
+    <h1 class="reveal reveal-d1">Your SAS Renewal Is Coming.<br><span class="em">Make It Your Last.</span></h1>
+    <p class="hero-sub reveal reveal-d1">T1A migrates your entire SAS environment to Databricks &mdash; code, data, users, and business processes. Not just a code translator.</p>
+    <div class="hero-actions reveal reveal-d2">
+      <a href="#contact" class="btn btn-dark">Book a Free Assessment &#8250;</a>
+      <a href="#tools" class="btn btn-outline">See the Tooling</a>
+    </div>
+    <p class="hero-note reveal reveal-d2">No commitment. Takes 2 weeks. You keep the roadmap.</p>
+  </div>
+
+  <div class="hero-stats-strip">
+    <div class="hero-stats-inner reveal reveal-d3">
+      <div class="hero-stat-cell">
+        <div class="hero-stat-n">70<span class="hl">%</span></div>
+        <div class="hero-stat-l">reduction in validation time</div>
+      </div>
+      <div class="hero-stat-cell">
+        <div class="hero-stat-n">50<span class="hl">+</span></div>
+        <div class="hero-stat-l">SAS environments migrated</div>
+      </div>
+      <div class="hero-stat-cell">
+        <div class="hero-stat-n">10<span class="hl">K+</span></div>
+        <div class="hero-stat-l">SAS users transitioned</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS (dark section) -->
+<section class="section pain" id="pain">
+  <div class="container">
+    <div class="pain-header reveal">
+      <div class="label">The Problem</div>
+      <h2>You Already Know SAS Needs to Go. The Question Is How.</h2>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="pain-card-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
+        </div>
+        <h3>SAS Is a Budget Black Hole</h3>
+        <p>License costs keep climbing. Every renewal is a negotiation you lose. Cloud-native alternatives cost a fraction with pay-as-you-go compute.</p>
+      </div>
+      <div class="pain-card reveal reveal-d1">
+        <div class="pain-card-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+        </div>
+        <h3>Talent Is Walking Away</h3>
+        <p>New data engineers learn Python and Spark, not SAS. Your team's skills are aging out, and hiring SAS developers gets harder every quarter.</p>
+      </div>
+      <div class="pain-card reveal reveal-d2">
+        <div class="pain-card-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"><path d="M3 10h14M3 6h14M3 14h14"/><circle cx="7" cy="6" r="1.5" fill="#EF4444"/><circle cx="13" cy="10" r="1.5" fill="#EF4444"/><circle cx="9" cy="14" r="1.5" fill="#EF4444"/></svg>
+        </div>
+        <h3>Migration Projects Fail</h3>
+        <p>Most SAS migrations stall at code conversion. The real complexity is business process continuity, data lineage, and getting 200 analysts productive on a new platform.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY T1A (light) -->
+<section class="section why" id="why">
+  <div class="container">
+    <div class="why-grid">
+      <div class="why-left reveal">
+        <div class="label">Why T1A</div>
+        <h2>We Don't Just Translate Code. We Migrate Businesses Off SAS.</h2>
+        <p>Most vendors treat SAS migration as a transpilation problem. We spent 15 years inside SAS environments &mdash; we know the hidden complexity in your metadata, EG flows, stored processes, and organizational dependencies that break naive migration approaches.</p>
+        <div class="why-badge">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 11c0 4-3.134 6-7 6s-7-2-7-6V5l7-3 7 3v6z"/><path d="M7 10l2.5 2.5L14 8"/></svg>
+          5 years SAS Platinum Partner, 10 years Gold
+        </div>
+      </div>
+      <div class="why-right reveal reveal-d1">
+        <div class="why-item">
+          <div class="why-item-icon">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#22C55F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg>
+          </div>
+          <div>
+            <h4>Full Environment Discovery</h4>
+            <p>Automated analysis of your SAS logs, metadata, code, and usage patterns. We find the 40% of code that's dormant before you pay to migrate it.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="#22C55F"><path d="M12 2L5.5 11.5h5L8 18l7.5-9.5h-5L12 2z"/></svg>
+          </div>
+          <div>
+            <h4>Purpose-Built Automation</h4>
+            <p>Our Alchemist suite handles code conversion, validation, and deployment &mdash; 99% SAS instruction coverage, not 60% followed by manual rework.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#22C55F" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="19"/><line x1="1" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="19" y2="10"/></svg>
+          </div>
+          <div>
+            <h4>Phased Delivery, No Big Bang</h4>
+            <p>Each phase delivers complete workload migration, user training, and SAS decommissioning for specific teams. You cut SAS licenses incrementally.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-item-icon">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#22C55F" stroke-width="1.8" stroke-linecap="round"><path d="M7 8a3 3 0 116 0c0 2-3 3-3 5"/><circle cx="10" cy="16" r="0.5" fill="#22C55F"/></svg>
+          </div>
+          <div>
+            <h4>People Transition, Not Just Code</h4>
+            <p>Role-tailored training, self-serve conversion tools inside Databricks, and a coexistence framework so your analysts keep delivering during the switch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS (comparison) -->
+<section class="section process" id="process" style="overflow:hidden">
+  <div class="deco deco-compare-r"><img src="resources/shapes/gradient glass (16).svg" alt="" loading="lazy"></div>
+  <div class="container">
+    <div class="process-header reveal">
+      <h2>Everyone's migrating off SAS.<br>Most get stuck halfway.</h2>
+    </div>
+    <div class="compare reveal reveal-d1">
+      <div class="compare-col compare-old">
+        <h3>Typical migration path:</h3>
+        <ul class="compare-list">
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+            Hire a consulting firm. Wait for a 200-page assessment.
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+            Discover the code converter only handles 60% of SAS.
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+            Manual rework. Months of testing. Scope creep.
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+            Analysts can't use the new platform. Adoption stalls.
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 6L6 14M6 6l8 8"/></svg>
+            SAS renewal comes. You sign again.
+          </li>
+        </ul>
+      </div>
+      <div class="compare-col compare-new">
+        <h3>With T1A:</h3>
+        <ul class="compare-list">
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 10.5l3.5 3.5L15 7"/></svg>
+            Automated discovery &mdash; full SAS landscape mapped in weeks
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 10.5l3.5 3.5L15 7"/></svg>
+            99% SAS instruction coverage via Alchemist
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 10.5l3.5 3.5L15 7"/></svg>
+            Agentic validation loops &mdash; 70% faster deployment
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 10.5l3.5 3.5L15 7"/></svg>
+            Role-tailored training &mdash; analysts productive in 2 weeks
+          </li>
+          <li>
+            <svg class="compare-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 10.5l3.5 3.5L15 7"/></svg>
+            Drop SAS licenses incrementally, phase by phase
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="section tools" id="tools">
+  <div class="container">
+    <div class="tools-header reveal">
+      <h2>Not everything needs to be<br>on your plate.</h2>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card reveal">
+        <span class="tool-tag tag-assess">Assessment</span>
+        <h3>Code Analyzer</h3>
+        <p>Static analysis of SAS programs, macros, EG flows, and DI jobs. Produces complexity metrics, dependency maps, and duplicate detection to scope your migration accurately.</p>
+        <a href="https://www.getalchemist.io/" target="_blank" rel="noopener" class="tool-link">Visit getalchemist.io &#8594;</a>
+      </div>
+      <div class="tool-card reveal reveal-d1">
+        <span class="tool-tag tag-assess">Assessment</span>
+        <h3>Logs Analyzer</h3>
+        <p>Automated workload discovery from SAS execution logs. Identifies active jobs, real usage patterns, data access events, and user-level attribution.</p>
+      </div>
+      <div class="tool-card reveal reveal-d2">
+        <span class="tool-tag tag-assess">Assessment</span>
+        <h3>Metadata Analyzer</h3>
+        <p>Extracts and inventories the full SAS metadata environment &mdash; libraries, servers, deployed jobs, stored processes, information maps, and external connections.</p>
+      </div>
+      <div class="tool-card reveal">
+        <span class="tool-tag tag-migrate">Migration</span>
+        <h3>Code Converter</h3>
+        <p>Automated SAS-to-PySpark engine with 99% SAS instruction coverage. Batch processing, conversion quality logs, and side-by-side review.</p>
+        <a href="https://www.getalchemist.io/" target="_blank" rel="noopener" class="tool-link">Visit getalchemist.io &#8594;</a>
+      </div>
+      <div class="tool-card reveal reveal-d1">
+        <span class="tool-tag tag-migrate">Migration</span>
+        <h3>Agentic Flows</h3>
+        <p>End-to-end pipeline: deploy jobs, run unit and E2E tests, iterate with LLM agents until all tests pass. Fully automated validation loop.</p>
+      </div>
+      <div class="tool-card reveal reveal-d2">
+        <span class="tool-tag tag-migrate">Migration</span>
+        <h3>Change Management</h3>
+        <p>Track all migration work across teams, phases, and business streams. Gantt timeline, work items, UAT records, progress dashboards, and incident management.</p>
+      </div>
+    </div>
+    <div class="tools-footer reveal">
+      <p>All six tools integrate into one platform &mdash; from discovery through go-live.</p>
+      <a href="https://www.getalchemist.io/" target="_blank" rel="noopener" class="btn btn-dark">Try Alchemist Online &#8250;</a>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS (dark) -->
+<section class="section results" id="results" style="overflow:hidden">
+  <div class="deco deco-results-l"><img src="resources/shapes/gradient glass (23).svg" alt="" loading="lazy"></div>
+  <div class="container" style="position:relative;z-index:2">
+    <div class="results-header reveal">
+      <div class="label">Results</div>
+      <h2>Real Migrations. Measurable Outcomes.</h2>
+      <p>Leading organizations across energy, healthcare, financial services, and media.</p>
+    </div>
+    <div class="results-grid">
+      <div class="result-card rc-accent reveal">
+        <span class="result-chip">Energy &middot; 8 months</span>
+        <h3>Electric Utility Company, USA</h3>
+        <p>Full SAS-to-Databricks migration including Lakehouse architecture and end-to-end ETL framework for the entire data engineering organization.</p>
+        <div class="result-metric">Full org migration + Lakehouse architecture</div>
+      </div>
+      <div class="result-card rc-teal reveal reveal-d1">
+        <span class="result-chip">Healthcare &middot; 4 months</span>
+        <h3>Health Insurance, USA</h3>
+        <p>SAS EG analytics migration with full consulting, user training, and seamless transition for business analysts and data scientists.</p>
+        <div class="result-metric">Analysts productive within 2 weeks of cutover</div>
+      </div>
+      <div class="result-card rc-gradient reveal reveal-d2">
+        <span class="result-chip">Healthcare &middot; 5 months</span>
+        <h3>Healthcare Company, Japan</h3>
+        <p>SAS EG data flows migration &mdash; full Lakehouse architecture and user transition with 180+ production pipelines migrated.</p>
+        <div class="result-metric">180+ production pipelines migrated</div>
+      </div>
+    </div>
+
+    <div class="refs-header reveal">
+      <div class="label">Public References</div>
+      <h3>Featured in the Wild</h3>
+    </div>
+    <div class="refs-grid">
+      <a href="https://www.databricks.com/blog/alchemist-brickbuilder-databricks-marketplace-app" target="_blank" rel="noopener" class="ref-card reveal">
+        <div class="ref-preview ref-preview-blog">
+          <span class="ref-blog-tag">Databricks Blog &middot; Jan 2026</span>
+          <span class="ref-blog-title-preview">Alchemist: from Brickbuilder to a Databricks Marketplace App</span>
+        </div>
+        <div class="ref-body">
+          <span class="ref-type ref-type-article">Article &middot; Databricks Blog</span>
+          <div class="ref-title">Alchemist: from Brickbuilder to a Databricks Marketplace App</div>
+          <div class="ref-desc">How Alchemist evolved into a Databricks Marketplace app, automating SAS code migration with AI and cutting validation time by 70%.</div>
+          <span class="ref-link-label">Read article &#8594;</span>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/watch?v=jcBja4PPLQc" target="_blank" rel="noopener" class="ref-card reveal reveal-d1">
+        <div class="ref-preview">
+          <img src="https://img.youtube.com/vi/jcBja4PPLQc/hqdefault.jpg" alt="Migrating Legacy SAS Code to Databricks Lakehouse">
+          <div class="ref-play-overlay">
+            <div class="ref-play-btn"><svg viewBox="0 0 16 16"><path d="M3 2l11 6.5L3 15V2z"/></svg></div>
+          </div>
+        </div>
+        <div class="ref-body">
+          <span class="ref-type ref-type-video">Video &middot; Data + AI Summit 2025</span>
+          <div class="ref-title">Migrating Legacy SAS Code to Databricks Lakehouse</div>
+          <div class="ref-desc">PacificSource Health Plans shares their multi-year migration journey using Alchemist.</div>
+          <span class="ref-link-label">Watch on YouTube &#8594;</span>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/watch?v=IBZDeOhHPc8" target="_blank" rel="noopener" class="ref-card reveal reveal-d2">
+        <div class="ref-preview">
+          <img src="https://img.youtube.com/vi/IBZDeOhHPc8/hqdefault.jpg" alt="Convert SAS to PySpark with Alchemist Skill + MCP">
+          <div class="ref-play-overlay">
+            <div class="ref-play-btn"><svg viewBox="0 0 16 16"><path d="M3 2l11 6.5L3 15V2z"/></svg></div>
+          </div>
+        </div>
+        <div class="ref-body">
+          <span class="ref-type ref-type-video">Video &middot; Demo</span>
+          <div class="ref-title">Convert SAS to PySpark with Alchemist Skill + MCP</div>
+          <div class="ref-desc">Live demo of Alchemist converting SAS programs to PySpark using AI and the Model Context Protocol.</div>
+          <span class="ref-link-label">Watch on YouTube &#8594;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="container">
+    <div class="cta-content reveal">
+      <h2>Get a Migration Roadmap<br><span class="em">Before Your Next Renewal.</span></h2>
+      <p>We audit your SAS environment and deliver a phased migration plan — with timelines and cost estimates — in two weeks.</p>
+      <p class="cta-note">No commitment. You keep the roadmap either way.</p>
+      <div class="cta-actions">
+        <a href="mailto:hello@t1a.com" class="btn btn-primary">Book Your Free Assessment</a>
+        <a href="https://www.getalchemist.io/" target="_blank" rel="noopener" class="btn btn-outline">Try Alchemist Online</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<section class="partners-bar">
+  <div class="container">
+    <div class="partners-inner">
+      <span class="partners-label">Key Partnerships</span>
+      <div class="partner-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.821 9.894l-9.81 5.595L1.505 9.511 1 9.787v4.34l11.01 6.256 9.811-5.574v2.297l-9.81 5.596-10.506-5.979L1 17v.745L12.01 24 23 17.745v-4.34l-.505-.277-10.484 5.957-9.832-5.574v-2.298l9.832 5.574L23 10.532V6.255l-.547-.319-10.442 5.936-9.327-5.276 9.327-5.298 7.663 4.362.673-.383v-.532L12.011 0 1 6.255v.681l11.01 6.255 9.811-5.595z" fill="#EE3D2C" fill-rule="nonzero"/></svg>
+        <span>Databricks</span>
+      </div>
+      <div class="partner-logo">
+        <svg width="20" height="20" viewBox="0 0 23 23"><rect fill="#f35325" x="1" y="1" width="10" height="10"/><rect fill="#81bc06" x="12" y="1" width="10" height="10"/><rect fill="#05a6f0" x="1" y="12" width="10" height="10"/><rect fill="#ffba08" x="12" y="12" width="10" height="10"/></svg>
+        <span>Microsoft</span>
+      </div>
+      <div class="partner-logo">
+        <svg width="20" height="20" viewBox="0 0 1565 1559" xmlns="http://www.w3.org/2000/svg"><path fill="#29b5e8" fill-rule="evenodd" d="m522.6 807.6c-7 22.5-22.2 42.5-44.5 55.2l-331.4 189.9c-46.8 26.7-106.4 10.9-133.3-35.3-27-46.5-11.1-105.5 35.7-132.3l185.2-105.9-185.2-106.2c-46.8-26.8-62.8-85.9-35.7-132.1 26.9-46.3 86.5-62.2 133.3-35.5l331.4 189.7c23.3 13.4 38.8 34.5 45.4 58.1 2.2 7.6 3.2 15.2 3.5 22.9 0.3 10.5-1.1 21.2-4.4 31.5zm89.9 177.8c50.5 3.6 90.3 45.4 90.3 96.4v379.6c0 53.5-43.8 96.8-97.5 96.8-54 0-97.7-43.3-97.7-96.8v-212.4l-185.8 106.3c-46.6 26.9-106.1 11-133.2-35.2-26.9-46.4-11-105.7 35.7-132.5l331.6-189.6c17.8-10.3 37.6-14.2 56.6-12.6zm339.7-412.6c-50.6-3.7-90.4-45.6-90.4-96.5v-379.6c0-53.4 43.6-96.7 97.6-96.7 54 0 97.7 43.3 97.7 96.7v212.4l185.7-106.4c46.6-26.7 106.2-10.9 133.2 35.4 26.8 46.5 11 105.6-35.7 132.3l-331.6 189.8c-17.8 10.2-37.6 14.2-56.5 12.7zm-727.9-202.5c-46.7-26.7-62.6-85.8-35.7-132.3 27.1-46.3 86.7-62.1 133.2-35.4l185.8 106.4v-212.4c0-53.4 43.7-96.7 97.7-96.7 53.7 0 97.5 43.3 97.5 96.7v379.6c0 50.9-39.8 92.8-90.3 96.5-19 1.6-38.8-2.4-56.6-12.6zm595.5 582.3c-3.9 4-11.5 7.3-17.3 7.3h-40.5c-5.6 0-13.3-3.3-17.3-7.3l-137.7-136.5c-4-3.8-7.2-11.5-7.2-17v-40.2c0-5.6 3.2-13.3 7.2-17.2l137.7-136.6c4-3.9 11.7-7.1 17.3-7.1h40.5c5.7 0 13.4 3.2 17.3 7.1l137.9 136.6c3.9 3.9 7.1 11.6 7.1 17.2v40.2c0 5.5-3.2 13.2-7.1 17zm27.6-174.3c0-5.5-3.3-13.2-7.3-17.3l-39.9-39.4c-3.9-3.9-11.7-7.1-17.2-7.1h-1.6c-5.6 0-13.3 3.2-17.2 7.1l-39.9 39.4c-4 4.1-7 11.8-7 17.3v1.6c0 5.4 3 13 7 17l39.9 39.4c4 4 11.6 7.2 17.2 7.2h1.6c5.5 0 13.3-3.2 17.2-7.2l39.9-39.4c4-4 7.3-11.6 7.3-17zm492.8 409.2c46.7 26.7 62.5 86.1 35.7 132.4-26.9 46.3-86.6 62.2-133.2 35.3l-185.7-106.3v212.3c0 53.6-43.6 96.9-97.6 96.9-54.1 0-97.6-43.3-97.6-96.9v-379.6c0-50.9 39.7-92.7 90.3-96.3 19-1.7 38.7 2.3 56.5 12.6zm-9.9-408.5l185.2 105.9c46.8 26.8 62.8 85.9 35.7 132.3-27 46.2-86.7 62.1-133.2 35.4l-331.6-189.9c-22.2-12.8-37.5-32.8-44.4-55.3-3.2-10.3-4.7-20.9-4.3-31.5q0.2-11.4 3.4-22.8c6.6-23.6 22.2-44.8 45.3-58.1l331.6-189.7c46.5-26.7 106.2-10.9 133.2 35.4 27.1 46.3 11.1 105.4-35.7 132.1z"/></svg>
+        <span>Snowflake</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <img src="resources/logos/logo_green.svg" alt="Alchemist" height="21">
+        <span class="footer-copy">&copy; 2026 T1A. All rights reserved.</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://t1a.com">t1a.com</a>
+        <a href="https://www.getalchemist.io/">getalchemist.io</a>
+        <a href="mailto:hello@t1a.com">hello@t1a.com</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.getElementById(a.getAttribute('href').slice(1));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>
